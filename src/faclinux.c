@@ -1,12 +1,12 @@
-#ifdef linux
-#include "faclib.h"
+#ifdef __linux__
+#include "../include/faclib.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 void *fac_ld_lib(char *lib_path)
 {
-    void *ret = dlopen(lib_path, RTLD_LAZY);
+    void *ret = dlopen(lib_path, RTLD_LAZY | RTLD_GLOBAL);
     if (ret == NULL)
         fprintf(stderr, "%s\n", dlerror());
 

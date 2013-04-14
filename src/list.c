@@ -19,8 +19,8 @@
 //    faclista, Copyright (C) 2007-2008 Francisco de Assis Prates
 //    faclista comes with ABSOLUTELY NO WARRANTY.
 
+#include "../include/faclib.h"
 #include <stdlib.h>
-#include "faclib.h"
 
 struct s_item {
     void *ptr_obj;

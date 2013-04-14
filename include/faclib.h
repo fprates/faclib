@@ -15,11 +15,13 @@ enum fac_bool {
 
 struct fac_lista;
 struct fac_iterador;
+struct fac_map;
 
 extern void *fac_ld_lib(char *);
 extern void *fac_ret_proc_lib(void *, char *);
 extern void fac_lib_term(void *);
-extern struct fac_lista *fac_ini_lista();
+
+extern struct fac_lista *fac_ini_lista(void);
 extern void fac_inc_item(struct fac_lista *, void *);
 extern void fac_rm_item(struct fac_lista *, void *);
 extern struct fac_iterador *fac_ini_iterador(struct fac_lista *);
@@ -32,5 +34,12 @@ extern void *fac_ret_item(struct fac_lista *, unsigned int);
 extern enum fac_bool fac_existe_prox(struct fac_iterador *);
 extern enum fac_bool fac_existe_item(struct fac_lista *, void *);
 extern void *fac_proximo(struct fac_iterador *);
+
+extern struct fac_map *fac_map_ini(void);
+extern unsigned int fac_map_size(struct fac_map *);
+extern void *fac_map_get(struct fac_map *, char *);
+extern void fac_map_put(struct fac_map *, char *, void *);
+extern void fac_map_rm(struct fac_map *);
+extern unsigned int fac_hashcode(char *);
 
 #endif /* FACLIB_H_ */
