@@ -16,6 +16,7 @@ struct s_map_entry {
 
 struct fac_map {
     unsigned int size, top, base;
+    struct fac_lista *keys;
     struct s_map_entry *entries;
 };
 
@@ -91,6 +92,7 @@ void fac_map_put(struct fac_map *map, char *key, void *value)
         entry->key = key;
         entry->value = value;
         *(map->entries+index) = *entry;
+        fac_inc_item(map->keys, key);
         map->size++;
     } else {
         entry->value = value;
@@ -99,6 +101,7 @@ void fac_map_put(struct fac_map *map, char *key, void *value)
 
 void fac_map_rm(struct fac_map *map)
 {
+    fac_rm_lista(map->keys);
     free(map->entries);
     free(map);
     map = NULL;
@@ -112,7 +115,13 @@ struct fac_map *fac_map_ini(void)
     map->base = 0;
     map->top = 0;
     map->entries = malloc(sizeof(*map->entries)*100);
+    map->keys = fac_ini_lista();
     bzero(map->entries, sizeof(*(map->entries)));
 
     return map;
+}
+
+struct fac_iterador *fac_map_iterator(struct fac_map *map)
+{
+    return fac_ini_iterador(map->keys);
 }

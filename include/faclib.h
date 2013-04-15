@@ -41,5 +41,6 @@ extern void *fac_map_get(struct fac_map *, char *);
 extern void fac_map_put(struct fac_map *, char *, void *);
 extern void fac_map_rm(struct fac_map *);
 extern unsigned int fac_hashcode(char *);
+extern struct fac_iterador *fac_map_iterator(struct fac_map *);
 
 #endif /* FACLIB_H_ */
