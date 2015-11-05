@@ -1,5 +1,5 @@
 #ifdef __WIN32__
-#include "faclib.h"
+#include "../include/libfac.h"
 #include <windows.h>
 #include <stdlib.h>
 

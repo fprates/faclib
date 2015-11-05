@@ -5,12 +5,13 @@
  *      Author: francisco.prates
  */
 
-#include "../include/faclib.h"
+#include "../include/libfac.h"
 #include <string.h>
 
-unsigned int fac_hashcode(char *string)
+unsigned int fac_hashcode(const char *string)
 {
-    unsigned int i, len = strlen(string);
+    unsigned int i;
+    size_t len = strlen(string);
     unsigned int hash = 0;
 
     for (i = 0; i < len; i++)

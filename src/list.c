@@ -19,59 +19,53 @@
 //    faclista, Copyright (C) 2007-2008 Francisco de Assis Prates
 //    faclista comes with ABSOLUTELY NO WARRANTY.
 
-#include "../include/faclib.h"
+#include "../include/libfac.h"
+#include "iterator.h"
 #include <stdlib.h>
+#include <stdint.h>
 
 struct s_item {
-    void *ptr_obj;
+    const void *ptr_obj;
     struct s_item *ptr_prox_obj;
 };
 
-struct fac_lista {
-    unsigned int qt;
-    struct s_item *primeiro_item;
-    struct s_item *itens;
-};
-
-struct fac_iterador {
-    unsigned int idx;
-    unsigned int qt;
-    void *ini;
-    struct s_item *itens;
+struct fac_list {
+    unsigned int size;
+    struct s_item *primeiro_item, *itens;
 };
 
 /**
  * Cria uma lista
  */
-struct fac_lista *fac_ini_lista()
+struct fac_list *fac_list_ini()
 {
-    struct fac_lista *lst = malloc(sizeof(*lst));
+    struct fac_list *list = malloc(sizeof(*list));
 
-    lst->qt = 0;
-    lst->itens = NULL;
-    lst->primeiro_item = NULL;
+    list->size = 0;
+    list->itens = NULL;
+    list->primeiro_item = NULL;
 
-    return lst;
+    return list;
 }
 
 /**
  * Inclui item na lista
  */
-void fac_inc_item(struct fac_lista *lista, void *ptr_obj)
+void fac_list_add(struct fac_list *lista, const void *ptr_obj)
 {
     if (lista->itens == NULL) {
         lista->itens = malloc(sizeof(*lista->itens));
-        if (lista->qt == 0)
+        if (lista->size == 0)
             lista->primeiro_item = lista->itens;
     }
 
     lista->itens->ptr_obj = ptr_obj;
     lista->itens->ptr_prox_obj = malloc(sizeof(*lista->itens->ptr_prox_obj));
     lista->itens = lista->itens->ptr_prox_obj;
-    lista->qt++;
+    lista->size++;
 }
 
-void fac_rm_item(struct fac_lista *lista, void *ptr_obj)
+void fac_list_item_rm(struct fac_list *lista, const void *ptr_obj)
 {
     struct s_item *itens;
     struct s_item *prox_itens;
@@ -80,7 +74,7 @@ void fac_rm_item(struct fac_lista *lista, void *ptr_obj)
     unsigned int qt;
     unsigned int k;
 
-    if ((lista->qt < 1) || (!fac_existe_item(lista, ptr_obj)))
+    if ((lista->size < 1) || (!fac_list_exists(lista, ptr_obj)))
         return;
 
     ret = FAC_FALSE;
@@ -115,7 +109,7 @@ void fac_rm_item(struct fac_lista *lista, void *ptr_obj)
         /*
          * verifica se atingiu o fim da lista.
          */
-        if (qt <= lista->qt)
+        if (qt <= lista->size)
             itens = itens->ptr_prox_obj;
         else
             ret = FAC_TRUE;
@@ -124,9 +118,9 @@ void fac_rm_item(struct fac_lista *lista, void *ptr_obj)
     if (!item_enc)
         return;
 
-    lista->qt--;
+    lista->size--;
 
-    if (lista->qt == 0)
+    if (lista->size == 0)
         return;
 
     itens = lista->primeiro_item;
@@ -144,139 +138,87 @@ void fac_rm_item(struct fac_lista *lista, void *ptr_obj)
     }
 }
 
-/**
- * Retorna cópia da lista para consulta.
- */
-struct fac_iterador *fac_ini_iterador(struct fac_lista *lista)
+unsigned int fac_list_size(struct fac_list *lista)
 {
-    struct fac_lista *lst = lista;
-    struct fac_iterador *it_ = malloc(sizeof(*it_));
+    struct fac_list *lista_ = lista;
 
-    it_->idx = 0;
-    it_->qt = lst->qt;
-    it_->itens = lst->primeiro_item;
-    it_->ini = lst->primeiro_item;
-
-    return it_;
-}
-
-void fac_rst_iterador(struct fac_iterador *it)
-{
-    it->idx = 0;
-    it->itens = it->ini;
-}
-
-unsigned int fac_qt_itens(struct fac_lista *lista)
-{
-    struct fac_lista *lista_ = lista;
-
-    return lista_->qt;
-}
-
-/**
- * retorna quantidade de itens de um iterador.
- */
-unsigned int fac_qt_itens_it(struct fac_iterador *it)
-{
-    return it->qt;
-}
-
-/**
- * Libera recursos do iterador
- */
-void fac_rm_iterador(struct fac_iterador *it)
-{
-    if (it == NULL)
-        return;
-
-    free(it);
-
-    it = NULL;
+    return lista_->size;
 }
 
 /**
  * Libera recursos da lista
  */
-void fac_rm_lista(struct fac_lista *lista)
+void fac_list_rm(struct fac_list *lista)
 {
     struct s_item *itens;
     struct s_item *prox_itens;
     unsigned int k;
-    struct fac_lista *lst_ = lista;
+    struct fac_list *lst_ = lista;
 
     itens = lst_->primeiro_item;
 
-    for (k = 0; k < lst_->qt; k++) {
+    for (k = 0; k < lst_->size; k++) {
         prox_itens = itens->ptr_prox_obj;
         free(itens);
         itens = prox_itens;
     }
 
+    free(itens);
     free(lst_);
     lst_ = NULL;
 }
 
-/**
- * Verifica se há próximo item do iterador
- */
-enum fac_bool fac_existe_prox(struct fac_iterador *it)
+enum fac_bool fac_list_exists(struct fac_list *lista, const void *objeto)
 {
-    return (it->idx < it->qt)?FAC_TRUE:FAC_FALSE;
-}
+    struct fac_iterator *it = fac_list_iterator(lista);
 
-/**
- * Retorna próximo item da lista
- */
-void *fac_proximo(struct fac_iterador *it)
-{
-    struct s_item *itens;
+    while(fac_iterator_has_next(it)) {
+        if(fac_iterator_next(it) != objeto)
+            continue;
 
-    if (fac_existe_prox(it)) {
-        it->idx++;
-        itens = it->itens;
-        it->itens = it->itens->ptr_prox_obj;
-
-        return itens->ptr_obj;
-    }
-
-    return NULL;
-}
-
-enum fac_bool fac_existe_item(struct fac_lista *lista, void *objeto)
-{
-    struct fac_iterador *it = fac_ini_iterador(lista);
-
-    while(fac_existe_prox(it)) {
-        if(fac_proximo(it) == objeto) {
-            fac_rm_iterador(it);
-
-            return FAC_TRUE;
-        }
+        fac_iterator_rm(it);
+        return FAC_TRUE;
     }
 
     return FAC_FALSE;
 }
 
-void *fac_ret_item(struct fac_lista *lista, unsigned int nr)
+struct fac_iterator *fac_list_iterator(struct fac_list *list)
 {
-    struct fac_iterador *it;
+    struct s_item *itens, *prox_itens;
+    unsigned int k;
+    uintptr_t *values, *mark;
+    size_t size = sizeof(*values);
+
+    values = malloc(size * list->size);
+    itens = list->primeiro_item;
+
+    for (k = 0; k < list->size; k++) {
+        prox_itens = itens->ptr_prox_obj;
+        mark = (uintptr_t *)(((uintptr_t)values) + (size * k));
+        *mark = (uintptr_t)itens->ptr_obj;
+        itens = prox_itens;
+    }
+
+    return iterator_ini(values, list->size);
+}
+
+void *fac_list_get(struct fac_list *list, unsigned int nr)
+{
+    struct fac_iterator *it;
     void *item = NULL;
     unsigned int c = 0;
 
-    if (nr == 0)
-        return NULL;
-
-    it = fac_ini_iterador(lista);
-
-    while (fac_existe_prox(it)) {
-        item = fac_proximo(it);
-        if (++c == nr)
+    it = fac_list_iterator(list);
+    while (fac_iterator_has_next(it)) {
+        item = fac_iterator_next(it);
+        if (c++ == nr)
             break;
 
         item = NULL;
     }
 
-    fac_rm_iterador(it);
+    fac_iterator_rm(it);
 
     return item;
 }

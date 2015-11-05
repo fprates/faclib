@@ -1,5 +1,5 @@
 #ifdef __linux__
-#include "../include/faclib.h"
+#include "../include/libfac.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
