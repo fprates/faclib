@@ -34,7 +34,7 @@ unsigned int fac_map_size(fac_map_t *map)
     return map->size;
 }
 
-void *fac_map_get(fac_map_t *map, const char *key)
+static struct s_map_entry *map_entry_get(fac_map_t *map, const char *key)
 {
     unsigned int index;
     uintptr_t pos;
@@ -58,7 +58,7 @@ void *fac_map_get(fac_map_t *map, const char *key)
         return NULL;
 
     if (strcmp(entry->key, key) == 0)
-        return entry->value;
+        return entry;
 
     /* busca de chaves com colisões */
     if (entry->list == NULL)
@@ -73,6 +73,18 @@ void *fac_map_get(fac_map_t *map, const char *key)
     }
 
     fac_iterator_rm(it);
+    return entry;
+}
+
+char fac_map_contains(fac_map_t *map, const char *key)
+{
+    struct s_map_entry *entry = map_entry_get(map, key);
+    return (entry != NULL);
+}
+
+void *fac_map_get(fac_map_t *map, const char *key)
+{
+    struct s_map_entry *entry = map_entry_get(map, key);
     return (entry == NULL)? NULL : entry->value;
 }
 

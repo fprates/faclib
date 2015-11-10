@@ -33,6 +33,7 @@ typedef struct fac_iterator fac_iterator_t;
 typedef struct fac_map fac_map_t;
 typedef struct fac_box fac_box_t;
 typedef struct fac_sb fac_sb_t;
+typedef struct fac_set fac_set_t;
 
 extern void *fac_ld_lib(char *);
 extern void *fac_ret_proc_lib(void *, char *);
@@ -62,6 +63,7 @@ extern unsigned int fac_hashcode(const char *key);
 extern fac_iterator_t *fac_map_iterator(fac_map_t *map);
 extern char *fac_map_key(fac_map_t *map, unsigned int);
 extern void fac_map_item_rm(fac_map_t *map, const char *key);
+extern char fac_map_contains(fac_map_t *map, const char *key);
 
 extern fac_box_t *fac_box_char(char value);
 extern fac_box_t *fac_box_double(double value);
@@ -84,5 +86,14 @@ extern char *fac_sb_get(fac_sb_t *sb);
 extern void fac_sb_rm(fac_sb_t *sb);
 extern void fac_sb_term(fac_sb_t *sb);
 extern void fac_sb_clear(fac_sb_t *sb);
+
+extern unsigned int fac_set_size(fac_set_t *set);
+extern char fac_set_contains(fac_set_t *set, const char *key);
+extern void fac_set_add(fac_set_t *set, const char *key);
+extern void fac_set_rm(fac_set_t *set);
+extern struct fac_set *fac_set_ini(void);
+extern struct fac_iterator *fac_set_iterator(struct fac_set *set);
+extern void fac_set_item_rm(fac_set_t *set, const char *key);
+extern char fac_set_contains(fac_set_t *set, const char *key);
 
 #endif /* FACLIB_H_ */
